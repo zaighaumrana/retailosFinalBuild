@@ -1,0 +1,21 @@
+# Security headers for all pages
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Cache JS and CSS for 1 day, revalidate
+/*.js
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/*.css
+  Cache-Control: public, max-age=86400, must-revalidate
+
+# Never cache HTML — always fetch fresh
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Service worker must never be cached
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
