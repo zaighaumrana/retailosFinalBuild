@@ -1,18 +1,41 @@
-{
-  "name": "RetailOS White Label SaaS",
-  "short_name": "RetailOS",
-  "description": "Offline-first multi-tenant retail, repair, POS, and analytics platform.",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#f6f8fb",
-  "theme_color": "#126c5b",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "./asset/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}
+const CACHE_NAME = "retailos-pwa-v2";
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./admin.html",
+  "./styles.css",
+  "./app.js",
+  "./admin.js",
+  "./shared.js",
+  "./manifest.webmanifest",
+  "./assets/icon.svg"
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      }).catch(() => caches.match("./index.html"));
+    })
+  );
+});
