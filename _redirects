@@ -1,7 +1,2 @@
-# Cloudflare Pages redirect rules
-# All unknown paths fall back to index.html (PWA support)
-/admin    /admin.html   200
-/track    /track.html   200
-/reset    /reset.html   200
-/setup    /setup.html   200
-/*        /index.html   200
+/admin /admin.html 200
+/track /track.html 200
