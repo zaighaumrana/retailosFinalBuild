@@ -104,7 +104,8 @@ async function submitLogin() {
   if (email.toLowerCase() === (CFG.owner_email || "").toLowerCase() && pass === CFG.owner_password) {
     SESSION = { employee: { name: "Admin", role: "Business Owner", email }, isAdmin: true };
     _saveSession(SESSION, "admin", "dashboard");
-    window.location.href = "./admin.html";
+    // Small delay to ensure sessionStorage is written before redirect
+    setTimeout(() => { window.location.href = "./admin.html"; }, 50);
     return;
   }
 
@@ -116,7 +117,7 @@ async function submitLogin() {
     state.role = role;
     if (role === "Business Owner" || role === "Manager") {
       _saveSession(SESSION, "admin", "dashboard");
-      window.location.href = "./admin.html";
+      setTimeout(() => { window.location.href = "./admin.html"; }, 50);
       return;
     }
     const route = role === "Technician" ? "workshop" : "pos";
