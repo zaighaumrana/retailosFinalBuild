@@ -104,8 +104,7 @@ async function submitLogin() {
   if (email.toLowerCase() === (CFG.owner_email || "").toLowerCase() && pass === CFG.owner_password) {
     SESSION = { employee: { name: "Admin", role: "Business Owner", email }, isAdmin: true };
     _saveSession(SESSION, "admin", "dashboard");
-    // Small delay to ensure sessionStorage is written before redirect
-    setTimeout(() => { window.location.href = "./admin.html"; }, 50);
+    setTimeout(() => { window.location.href = "./admin.html"; }, 100);
     return;
   }
 
@@ -116,9 +115,9 @@ async function submitLogin() {
     const role = res.employee.role;
     state.role = role;
     if (role === "Business Owner" || role === "Manager") {
-      _saveSession(SESSION, "admin", "dashboard");
-      setTimeout(() => { window.location.href = "./admin.html"; }, 50);
-      return;
+      __saveSession(SESSION, "admin", "dashboard");
+    setTimeout(() => { window.location.href = "./admin.html"; }, 100);
+    return;
     }
     const route = role === "Technician" ? "workshop" : "pos";
     _saveSession(SESSION, route, "");
@@ -132,6 +131,12 @@ async function submitLogin() {
 
 /* ── Render ── */
 function render() {
+  // If session shows admin/manager role — they should be on admin.html
+  const _role = SESSION.employee?.role || "";
+  if (SESSION.employee && (_role === "Business Owner" || _role === "Manager") && !window.location.pathname.includes("admin")) {
+    setTimeout(() => { window.location.href = "./admin.html"; }, 100);
+    return;
+  }
   if (!SESSION.employee) {
     document.getElementById("app").innerHTML = loginScreen();
     const wrap = document.getElementById("cf-turnstile-wrap");
