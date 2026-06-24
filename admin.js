@@ -37,17 +37,17 @@ const ADMIN_MODULES = [
 
 /* ── Guard: if not admin/manager, redirect ── */
 (function() {
-  const sess = _loadSession();
-  if (!sess.employee) {
-    // No session at all — but don't redirect immediately
-    // load() will handle showing login on index.html
-    // Only redirect if we're sure there's no session
-    const hasSession = sessionStorage.getItem("retailos_session");
-    if (!hasSession) { window.location.href = "./index.html"; return; }
-  }
-  const role = sess.employee?.role || "";
-  if (role === "Cashier" || role === "Technician") {
-    window.location.href = "./index.html";
+  const raw = sessionStorage.getItem("retailos_session");
+  if (!raw) { window.location.href = "./index.html"; return; }
+  try {
+    const sess = JSON.parse(raw);
+    const role = sess?.employee?.role || "";
+    if (!sess.employee) { window.location.href = "./index.html"; return; }
+    if (role === "Cashier" || role === "Technician") {
+      window.location.href = "./index.html"; return;
+    }
+  } catch {
+    window.location.href = "./index.html"; return;
   }
 })();
 
@@ -81,8 +81,8 @@ async function load() {
 /* ── Render ── */
 function render() {
   if (!SESSION.employee) {
-    // Session expired or missing — go back to login
     _clearSession();
+    sessionStorage.clear();
     window.location.href = "./index.html";
     return;
   }
