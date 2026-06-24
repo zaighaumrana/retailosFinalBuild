@@ -38,7 +38,13 @@ const ADMIN_MODULES = [
 /* ── Guard: if not admin/manager, redirect ── */
 (function() {
   const sess = _loadSession();
-  if (!sess.employee) { window.location.href = "./index.html"; }
+  if (!sess.employee) {
+    // No session at all — but don't redirect immediately
+    // load() will handle showing login on index.html
+    // Only redirect if we're sure there's no session
+    const hasSession = sessionStorage.getItem("retailos_session");
+    if (!hasSession) { window.location.href = "./index.html"; return; }
+  }
   const role = sess.employee?.role || "";
   if (role === "Cashier" || role === "Technician") {
     window.location.href = "./index.html";
@@ -74,7 +80,12 @@ async function load() {
 
 /* ── Render ── */
 function render() {
-  if (!SESSION.employee) { window.location.href = "./index.html"; return; }
+  if (!SESSION.employee) {
+    // Session expired or missing — go back to login
+    _clearSession();
+    window.location.href = "./index.html";
+    return;
+  }
   if (CFG.suspended) {
     document.getElementById("app").innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;text-align:center;padding:24px">
